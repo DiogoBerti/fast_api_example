@@ -1,0 +1,35 @@
+version: '3'
+services:
+  db_app:
+    image: postgres
+    environment:
+      POSTGRES_DB: app_db
+      POSTGRES_USER: app_db
+      POSTGRES_PASSWORD: admin
+    networks:
+      - fast-api-net
+    ports:
+      - "5432:5432"
+  app:
+    build: .
+    restart: always    
+    environment:      
+      DB_NAME: app_db
+      DB_USER: app_db
+      DB_PWD: admin
+      DB_HOST: db_app
+    command: ["sh", "entrypoint.sh"]
+    depends_on:
+      - db_app
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    tty: true
+    stdin_open: true
+    networks:
+      - fast-api-net
+
+networks:
+  fast-api-net:
+    driver: bridge
